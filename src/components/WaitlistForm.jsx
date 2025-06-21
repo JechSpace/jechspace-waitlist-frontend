@@ -187,7 +187,7 @@ const WaitlistForm = () => {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800 text-sm">
-            <strong>500+</strong> people have already joined our waitlist. Don't
+            <strong>20+</strong> people have already joined our waitlist. Don't
             miss out!
           </p>
         </div>

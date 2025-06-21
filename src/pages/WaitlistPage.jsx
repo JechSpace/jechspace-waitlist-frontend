@@ -60,7 +60,7 @@ const WaitlistPage = () => {
             className="mt-16 grid md:grid-cols-3 gap-8 text-center"
           >
             <div className="p-6 bg-white rounded-xl shadow-sm border">
-              <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">20+</div>
               <div className="text-gray-600">Early Adopters</div>
               <div className="text-sm text-gray-500 mt-1">
                 Already on the waitlist
@@ -68,7 +68,7 @@ const WaitlistPage = () => {
             </div>
             <div className="p-6 bg-white rounded-xl shadow-sm border">
               <div className="text-3xl font-bold text-purple-600 mb-2">
-                Q2 2025
+                Q3 2025
               </div>
               <div className="text-gray-600">Expected Launch</div>
               <div className="text-sm text-gray-500 mt-1">
@@ -100,7 +100,7 @@ const WaitlistPage = () => {
                   When will JechSpace launch?
                 </h3>
                 <p className="text-gray-600">
-                  We're planning to launch in Q2 2025. Waitlist members will get
+                  We're planning to launch in Q3 2025. Waitlist members will get
                   early access before the public launch.
                 </p>
               </div>

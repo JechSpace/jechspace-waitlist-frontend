@@ -7,45 +7,55 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Zap, Shield, Users, Rocket, Heart, Globe } from "lucide-react";
+import {
+  LayoutDashboard,
+  CalendarCheck,
+  Users,
+  BarChart3,
+  Shield,
+  Smartphone,
+  MapPin,
+  Clock,
+  Zap,
+} from "lucide-react";
 
 const Features = () => {
   const features = [
     {
-      icon: <Zap className="w-8 h-8" />,
-      title: "Lightning Fast",
+      icon: <LayoutDashboard className="w-8 h-8" />,
+      title: "Smart Space Management",
       description:
-        "Experience unprecedented speed and performance with our cutting-edge technology.",
+        "Optimize office layouts with intelligent space allocation and real-time occupancy tracking.",
     },
     {
-      icon: <Shield className="w-8 h-8" />,
-      title: "Secure & Private",
+      icon: <CalendarCheck className="w-8 h-8" />,
+      title: "Booking & Reservations",
       description:
-        "Your data is protected with enterprise-grade security and privacy measures.",
+        "Seamlessly book meeting rooms, desks, and equipment with our intuitive reservation system.",
     },
     {
       icon: <Users className="w-8 h-8" />,
-      title: "Collaborative",
+      title: "Team Collaboration",
       description:
-        "Work seamlessly with your team in real-time collaboration environments.",
+        "Foster teamwork with integrated communication tools and collaborative workspace planning.",
     },
     {
-      icon: <Rocket className="w-8 h-8" />,
-      title: "Innovation Driven",
+      icon: <BarChart3 className="w-8 h-8" />,
+      title: "Analytics & Insights",
       description:
-        "Built with the latest technologies to keep you ahead of the curve.",
+        "Make data-driven decisions with comprehensive workspace utilization analytics and reports.",
     },
     {
-      icon: <Heart className="w-8 h-8" />,
-      title: "User Focused",
+      icon: <MapPin className="w-8 h-8" />,
+      title: "Interactive Floor Plans",
       description:
-        "Designed with user experience at the heart of every decision we make.",
+        "Navigate your workspace with interactive maps and real-time space availability.",
     },
     {
-      icon: <Globe className="w-8 h-8" />,
-      title: "Global Ready",
+      icon: <Smartphone className="w-8 h-8" />,
+      title: "Mobile Ready",
       description:
-        "Scale globally with built-in internationalization and accessibility features.",
+        "Access all features on-the-go with our responsive mobile application.",
     },
   ];
 
@@ -73,6 +83,7 @@ const Features = () => {
   return (
     <section id="features" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {" "}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -82,17 +93,14 @@ const Features = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Why Choose{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              JechSpace
-            </span>
+            Powerful Features for{" "}
+            <span className="text-blue-600">Modern Workspaces</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover the features that make JechSpace the perfect solution for
-            your needs
+            Transform your office management with intelligent tools designed for
+            productivity, efficiency, and seamless collaboration.
           </p>
         </motion.div>
-
         {/* Features Grid */}
         <motion.div
           variants={containerVariants}
@@ -112,10 +120,11 @@ const Features = () => {
             >
               <Card className="h-full border-none shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="text-center">
+                  {" "}
                   <motion.div
-                    className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white mx-auto mb-4"
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
+                    className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.3 }}
                   >
                     {feature.icon}
                   </motion.div>
@@ -131,8 +140,7 @@ const Features = () => {
               </Card>
             </motion.div>
           ))}
-        </motion.div>
-
+        </motion.div>{" "}
         {/* Call to Action */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -141,21 +149,31 @@ const Features = () => {
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <p className="text-lg text-gray-600 mb-6">
-            Ready to experience the future? Join our waitlist today.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-8 py-3 rounded-lg transition-all duration-300"
-            onClick={() =>
-              document
-                .getElementById("waitlist")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Get Early Access
-          </motion.button>
+          <div className="bg-white rounded-2xl p-8 shadow-lg max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              Ready to Transform Your Workspace?
+            </h3>
+            <p className="text-lg text-gray-600 mb-6">
+              Join thousands of companies already optimizing their office spaces
+              with JechSpace.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-300 shadow-lg"
+              onClick={() => {
+                const waitlistSection = document.getElementById("waitlist");
+                if (waitlistSection) {
+                  waitlistSection.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  window.location.href = "/waitlist";
+                }
+              }}
+            >
+              {" "}
+              Get Early Access
+            </motion.button>
+          </div>
         </motion.div>
       </div>
     </section>
