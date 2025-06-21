@@ -1,6 +1,17 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Heart, Mail, Twitter, Github, Linkedin } from "lucide-react";
+import {
+  Heart,
+  Mail,
+  Twitter,
+  Github,
+  Linkedin,
+  Building2,
+  ArrowRight,
+  MapPin,
+  Phone,
+} from "lucide-react";
+import { Button } from "./ui/button";
 
 const Footer = () => {
   const socialLinks = [
@@ -9,7 +20,7 @@ const Footer = () => {
     { icon: <Linkedin className="w-5 h-5" />, href: "#", label: "LinkedIn" },
     {
       icon: <Mail className="w-5 h-5" />,
-      href: "mailto:hello@JechSpace.com",
+      href: "mailto:hello@jechspace.com",
       label: "Email",
     },
   ];
@@ -19,18 +30,27 @@ const Footer = () => {
       title: "Product",
       links: [
         { name: "Features", href: "#features" },
+        { name: "How It Works", href: "#how-it-works" },
         { name: "Pricing", href: "#pricing" },
-        { name: "Roadmap", href: "#roadmap" },
-        { name: "Changelog", href: "#changelog" },
+        { name: "Demo", href: "#demo" },
       ],
     },
     {
       title: "Company",
       links: [
-        { name: "About", href: "#about" },
-        { name: "Team", href: "#team" },
+        { name: "About Us", href: "#about" },
         { name: "Careers", href: "#careers" },
+        { name: "Press", href: "#press" },
         { name: "Contact", href: "#contact" },
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { name: "Documentation", href: "#docs" },
+        { name: "API Reference", href: "#api" },
+        { name: "Support", href: "#support" },
+        { name: "Blog", href: "#blog" },
       ],
     },
     {
@@ -38,7 +58,7 @@ const Footer = () => {
       links: [
         { name: "Privacy Policy", href: "#privacy" },
         { name: "Terms of Service", href: "#terms" },
-        { name: "Cookie Policy", href: "#cookies" },
+        { name: "Security", href: "#security" },
         { name: "GDPR", href: "#gdpr" },
       ],
     },
@@ -49,6 +69,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {" "}
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <motion.div
@@ -57,28 +78,52 @@ const Footer = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-                JechSpace
-              </h3>
+              {/* Logo */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">JechSpace</h3>
+              </div>
+
               <p className="text-gray-400 mb-6 max-w-md">
-                Building the future of digital experiences. Join our waitlist to
-                be the first to experience what we're creating.
+                A comprehensive workspace management solution designed to
+                optimize your office space, boost productivity, and enhance
+                workplace experience.
               </p>
 
+              {/* Contact Info */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 text-gray-400">
+                  <MapPin className="w-4 h-4" />
+                  <span>Lagos, Nigeria</span>
+                </div>
+               {/*  <div className="flex items-center gap-3 text-gray-400">
+                  <Phone className="w-4 h-4" />
+                  <span>+234-904-5009-067</span>
+                </div> */}
+                <div className="flex items-center gap-3 text-gray-400">
+                  <Mail className="w-4 h-4" />
+                  <span>hello@jechspace.com</span>
+                </div>
+              </div>
+
               {/* Newsletter Signup */}
-              <div className="flex flex-col sm:flex-row gap-3 max-w-md">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white"
-                />
-                <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-medium transition-all duration-300">
-                  Subscribe
-                </button>
+              <div className="mb-6">
+                <h4 className="font-semibold text-white mb-3">Stay Updated</h4>
+                <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-500"
+                  />
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-300">
+                    Subscribe
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </div>
-
           {/* Footer Links */}
           {footerLinks.map((section, index) => (
             <motion.div
