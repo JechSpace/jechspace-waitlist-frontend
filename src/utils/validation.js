@@ -12,12 +12,12 @@ export const validateName = (name) => {
 // Phone validation function (optional)
 export const validatePhone = (phone) => {
   if (!phone) return true; // Phone is optional
-  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+  const phoneRegex = /^[\+]?[1-9][\d]{0,11}$/;
   return phoneRegex.test(phone.replace(/\s/g, ""));
 };
 
 // Waitlist form validation
-export const validateWaitlistForm = (formData) => {
+export const validateWaitlistForm = (formData, customerType = "user") => {
   const errors = {};
 
   if (!validateName(formData.firstName)) {
@@ -34,6 +34,15 @@ export const validateWaitlistForm = (formData) => {
 
   if (formData.phone && !validatePhone(formData.phone)) {
     errors.phone = "Please enter a valid phone number";
+  }
+
+  // Company is required for organisations
+  if (
+    customerType === "organisation" &&
+    (!formData.company || formData.company.trim().length < 2)
+  ) {
+    errors.company =
+      "Company/Organization name is required and must be at least 2 characters long";
   }
 
   return {
