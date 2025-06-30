@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 const WaitlistForm = () => {
+  const [customerType, setCustomerType] = useState("user"); // "user" or "organisation"
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -50,19 +51,18 @@ const WaitlistForm = () => {
       }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate form
-    const validation = validateWaitlistForm(formData);
+    const validation = validateWaitlistForm(formData, customerType);
     if (!validation.isValid) {
       setFormErrors(validation.errors);
       return;
     }
 
-    // Submit form
-    const result = await submitWaitlist(formData);
+    // Submit form with customer type
+    const result = await submitWaitlist({ ...formData, customerType });
     if (result.success) {
       setShowSuccess(true);
       setFormData({
@@ -208,9 +208,36 @@ const WaitlistForm = () => {
               Get early access to JechSpace and be the first to experience the
               future
             </CardDescription>
-          </CardHeader>
+          </CardHeader>{" "}
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Customer Type Toggle */}
+              <div className="flex items-center justify-center mb-6">
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    type="button"
+                    onClick={() => setCustomerType("user")}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                      customerType === "user"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Individual
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCustomerType("organisation")}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                      customerType === "organisation"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Organisation
+                  </button>
+                </div>
+              </div>
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -250,7 +277,6 @@ const WaitlistForm = () => {
                   )}
                 </div>
               </div>
-
               {/* Email */}
               <div>
                 <Input
@@ -271,13 +297,12 @@ const WaitlistForm = () => {
                   </motion.p>
                 )}
               </div>
-
               {/* Phone (Optional) */}
               <div>
                 <Input
                   name="phone"
                   type="tel"
-                  placeholder="Phone Number (Optional)"
+                  placeholder="Phone Number"
                   value={formData.phone}
                   onChange={handleInputChange}
                   className={formErrors.phone ? "border-red-500" : ""}
@@ -290,18 +315,30 @@ const WaitlistForm = () => {
                   >
                     {formErrors.phone}
                   </motion.p>
-                )}
+                )}{" "}
               </div>
 
-              {/* Company (Optional) */}
-              <div>
-                <Input
-                  name="company"
-                  placeholder="Company/Organization (Optional)"
-                  value={formData.company}
-                  onChange={handleInputChange}
-                />
-              </div>
+              {/* Company/Organisation - Only show for organisations */}
+              {customerType === "organisation" && (
+                <div>
+                  <Input
+                    name="company"
+                    placeholder="Company/Organization *"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    className={formErrors.company ? "border-red-500" : ""}
+                  />
+                  {formErrors.company && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1"
+                    >
+                      {formErrors.company}
+                    </motion.p>
+                  )}
+                </div>
+              )}
 
               {/* Interests (Optional) */}
               <div>
@@ -314,7 +351,6 @@ const WaitlistForm = () => {
                   className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 />
               </div>
-
               {/* Error Message */}
               <AnimatePresence>
                 {error && (
@@ -329,7 +365,6 @@ const WaitlistForm = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -345,7 +380,6 @@ const WaitlistForm = () => {
                   "Join Waitlist"
                 )}
               </Button>
-
               {/* Privacy Notice */}
               <p className="text-xs text-gray-500 text-center">
                 By joining our waitlist, you agree to receive updates about
