@@ -302,7 +302,7 @@ const WaitlistForm = () => {
                 <Input
                   name="phone"
                   type="tel"
-                  placeholder="Phone Number"
+                  placeholder="Phone Number (Optional)"
                   value={formData.phone}
                   onChange={handleInputChange}
                   className={formErrors.phone ? "border-red-500" : ""}
