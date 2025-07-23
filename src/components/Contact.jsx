@@ -19,20 +19,20 @@ const Contact = () => {
     {
       icon: <Mail className="w-6 h-6" />,
       title: "Email Us",
-      details: "hello@jechspace.com",
+      details: "jechspace@gmail.com",
       subtitle: "We'll respond within 24 hours",
     },
     {
       icon: <Phone className="w-6 h-6" />,
       title: "Call Us",
       details: "+234 JechSpace",
-      subtitle: "Mon-Fri, 9AM-6PM EST",
+      subtitle: "Mon-Fri, 9AM-6PM WAT",
     },
     {
       icon: <MapPin className="w-6 h-6" />,
       title: "Visit Us",
       details: "Lagos, Nigeria",
-      subtitle: "San Francisco, CA 94107",
+      subtitle: "ITF House, Plot 12, Funsho Williams Avenue, Iponri Surulere",
     },
     {
       icon: <Clock className="w-6 h-6" />,

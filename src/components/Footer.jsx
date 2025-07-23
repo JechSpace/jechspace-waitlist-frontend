@@ -15,12 +15,31 @@ import { Button } from "./ui/button";
 
 const Footer = () => {
   const socialLinks = [
-    { icon: <Twitter className="w-5 h-5" />, href: "#", label: "Twitter" },
-    { icon: <Github className="w-5 h-5" />, href: "#", label: "GitHub" },
-    { icon: <Linkedin className="w-5 h-5" />, href: "#", label: "LinkedIn" },
+    {
+      icon: <Twitter className="w-5 h-5" />,
+      href: "https://x.com/jechspace",
+      // target: "_blank", open in new tab
+      target: "_blank",
+      rel: "noopener noreferrer",
+      label: "Twitter",
+    },
+    {
+      icon: <Github className="w-5 h-5" />,
+      href: "https://github.com/JechSpace",
+      target: "_blank",
+      rel: "noopener noreferrer",
+      label: "GitHub",
+    },
+    {
+      icon: <Linkedin className="w-5 h-5" />,
+      href: "https://www.linkedin.com/company/jechspace",
+      target: "_blank",
+      rel: "noopener noreferrer",
+      label: "LinkedIn",
+    },
     {
       icon: <Mail className="w-5 h-5" />,
-      href: "mailto:hello@jechspace.com",
+      href: "mailto:jechspace@gmail.com",
       label: "Email",
     },
   ];
@@ -98,13 +117,21 @@ const Footer = () => {
                   <MapPin className="w-4 h-4" />
                   <span>Lagos, Nigeria</span>
                 </div>
-               {/*  <div className="flex items-center gap-3 text-gray-400">
+                {/*  <div className="flex items-center gap-3 text-gray-400">
                   <Phone className="w-4 h-4" />
                   <span>+234-904-5009-067</span>
                 </div> */}
                 <div className="flex items-center gap-3 text-gray-400">
                   <Mail className="w-4 h-4" />
-                  <span>hello@jechspace.com</span>
+                  <span>
+                    <a
+                      href="mailto:jechspace@gmail.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      jechspace@gmail.com
+                    </a>
+                  </span>
                 </div>
               </div>
 
