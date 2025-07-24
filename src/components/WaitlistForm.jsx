@@ -344,7 +344,7 @@ const WaitlistForm = () => {
               <div>
                 <textarea
                   name="interests"
-                  placeholder="What interests you most about JechSpace? (Optional)"
+                  placeholder="What interests you most about JechSpace?"
                   value={formData.interests}
                   onChange={handleInputChange}
                   rows={3}

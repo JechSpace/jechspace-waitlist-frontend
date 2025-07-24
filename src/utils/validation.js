@@ -10,10 +10,17 @@ export const validateName = (name) => {
 };
 
 // Phone validation function (optional)
+// export const validatePhone = (phone) => {
+//   if (!phone) return true; // Phone is optional
+//   const phoneRegex = /^[\+]?[1-9][\d]{0,11}$/;
+//   return phoneRegex.test(phone.replace(/\s/g, ""));
+// };
+
 export const validatePhone = (phone) => {
   if (!phone) return true; // Phone is optional
-  const phoneRegex = /^[\+]?[1-9][\d]{0,11}$/;
-  return phoneRegex.test(phone.replace(/\s/g, ""));
+  const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, "");
+  const phoneRegex = /^(\+?[0-9]{7,15})$/;
+  return phoneRegex.test(cleanPhone);
 };
 
 // Waitlist form validation
@@ -33,7 +40,8 @@ export const validateWaitlistForm = (formData, customerType = "user") => {
   }
 
   if (formData.phone && !validatePhone(formData.phone)) {
-    errors.phone = "Please enter a valid phone number";
+    errors.phone =
+      "Please enter a valid phone number (7-15 digits, optional + prefix)";
   }
 
   // Company is required for organisations
