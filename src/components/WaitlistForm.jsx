@@ -21,12 +21,9 @@ import {
 } from "lucide-react";
 
 const WaitlistForm = () => {
-  const [customerType, setCustomerType] = useState("user"); // "user" or "organisation"
+  const [customerType, setCustomerType] = useState("user");
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
-    phone: "",
     company: "",
     interests: "",
   });
@@ -43,7 +40,6 @@ const WaitlistForm = () => {
       [name]: value,
     }));
 
-    // Clear error for this field when user starts typing
     if (formErrors[name]) {
       setFormErrors((prev) => ({
         ...prev,
@@ -54,27 +50,37 @@ const WaitlistForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
     const validation = validateWaitlistForm(formData, customerType);
     if (!validation.isValid) {
       setFormErrors(validation.errors);
       return;
     }
 
-    // Submit form with customer type
-    const result = await submitWaitlist({ ...formData, customerType });
+    const result = await submitWaitlist({
+      email: formData.email,
+      customerType: customerType,
+      company: formData.company,
+      interests: formData.interests,
+    });
+
     if (result.success) {
-      setShowSuccess(true);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        company: "",
-        interests: "",
-      });
-    } else if (result.errors) {
-      setFormErrors(result.errors);
+      // Only show success for status 200 (new submission)
+      if (
+        result.data?.status === "success" &&
+        !result.data?.message?.includes("already on waitlist")
+      ) {
+        setShowSuccess(true);
+        setFormData({
+          email: "",
+          company: "",
+          interests: "",
+        });
+      } else {
+        // User already on waitlist - show error message
+        setFormErrors({ email: "Email is already on our waitlist" });
+      }
+    } else if (result.error) {
+      setFormErrors({ email: result.error });
     }
   };
 
@@ -115,7 +121,7 @@ const WaitlistForm = () => {
               <CheckCircle className="w-8 h-8 text-white" />
             </motion.div>
             <CardTitle className="text-green-800">
-              Welcome to the Waitlist!
+              Successfully Joined Waitlist!
             </CardTitle>
             <CardDescription className="text-green-600">
               Thank you for joining JechSpace. We'll notify you as soon as we
@@ -123,21 +129,38 @@ const WaitlistForm = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <div className="space-y-3 text-sm text-green-700">
-              <p>✨ You're now part of our exclusive early access program</p>
-              <p>📧 Check your email for a confirmation message</p>
-              <p>🎉 Follow us on social media for updates</p>
+            <div className="space-y-4 text-sm text-green-700">
+              <p>You're now part of our exclusive early access program</p>
+              <div>
+                <p className="mb-3">Follow us for updates:</p>
+                <div className="flex justify-center gap-4">
+                  <a
+                    href="https://x.com/jechspace"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    Twitter
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/jechspace"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    LinkedIn
+                  </a>
+                  <a
+                    href="https://github.com/JechSpace"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    GitHub
+                  </a>
+                </div>
+              </div>
             </div>
-            <Button
-              variant="outline"
-              className="mt-6 border-green-300 text-green-700 hover:bg-green-100"
-              onClick={() => {
-                setShowSuccess(false);
-                resetForm();
-              }}
-            >
-              Join Another Person
-            </Button>
           </CardContent>
         </Card>
       </motion.div>
@@ -145,7 +168,10 @@ const WaitlistForm = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto grid lg:grid-cols-2 gap-8 items-start">
+    <div
+      id="waitlist-form"
+      className="max-w-4xl mx-auto grid lg:grid-cols-2 gap-8 items-start"
+    >
       {/* Benefits Section */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -238,54 +264,24 @@ const WaitlistForm = () => {
                   </button>
                 </div>
               </div>
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Input
-                    name="firstName"
-                    placeholder="First Name"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    className={formErrors.firstName ? "border-red-500" : ""}
-                  />
-                  {formErrors.firstName && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-sm mt-1"
-                    >
-                      {formErrors.firstName}
-                    </motion.p>
-                  )}
-                </div>
-                <div>
-                  <Input
-                    name="lastName"
-                    placeholder="Last Name"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    className={formErrors.lastName ? "border-red-500" : ""}
-                  />
-                  {formErrors.lastName && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-sm mt-1"
-                    >
-                      {formErrors.lastName}
-                    </motion.p>
-                  )}
-                </div>
-              </div>
-              {/* Email */}
-              <div>
+
+              {/* Email Field */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email Address *
+                </label>
                 <Input
+                  id="email"
                   name="email"
                   type="email"
-                  placeholder="Email Address"
+                  placeholder="Enter your email address"
                   value={formData.email}
                   onChange={handleInputChange}
                   className={formErrors.email ? "border-red-500" : ""}
+                  required
                 />
                 {formErrors.email && (
                   <motion.p
@@ -297,36 +293,24 @@ const WaitlistForm = () => {
                   </motion.p>
                 )}
               </div>
-              {/* Phone (Optional) */}
-              <div>
-                <Input
-                  name="phone"
-                  type="tel"
-                  placeholder="Phone Number (Optional)"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className={formErrors.phone ? "border-red-500" : ""}
-                />
-                {formErrors.phone && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm mt-1"
-                  >
-                    {formErrors.phone}
-                  </motion.p>
-                )}{" "}
-              </div>
 
               {/* Company/Organisation - Only show for organisations */}
               {customerType === "organisation" && (
-                <div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="company"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Organization Name *
+                  </label>
                   <Input
+                    id="company"
                     name="company"
-                    placeholder="Company/Organization *"
+                    placeholder="Enter your organization name"
                     value={formData.company}
                     onChange={handleInputChange}
                     className={formErrors.company ? "border-red-500" : ""}
+                    required
                   />
                   {formErrors.company && (
                     <motion.p
@@ -340,17 +324,25 @@ const WaitlistForm = () => {
                 </div>
               )}
 
-              {/* Interests (Optional) */}
-              <div>
+              {/* Interests Field */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="interests"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  What interests you most about JechSpace?
+                </label>
                 <textarea
+                  id="interests"
                   name="interests"
-                  placeholder="What interests you most about JechSpace?"
+                  placeholder="Tell us what excites you about JechSpace..."
                   value={formData.interests}
                   onChange={handleInputChange}
                   rows={3}
                   className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 />
               </div>
+
               {/* Error Message */}
               <AnimatePresence>
                 {error && (

@@ -53,7 +53,6 @@ const Contact = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     setIsSubmitted(true);
@@ -65,7 +64,6 @@ const Contact = () => {
       message: "",
     });
 
-    // Reset success message after 3 seconds
     setTimeout(() => setIsSubmitted(false), 3000);
   };
 

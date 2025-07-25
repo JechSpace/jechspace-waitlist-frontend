@@ -1,14 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import WaitlistFooter from "../components/WaitlistFooter";
 import WaitlistForm from "../components/WaitlistForm";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const WaitlistPage = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
       <Navbar />
@@ -16,18 +12,6 @@ const WaitlistPage = () => {
       {/* Main Content */}
       <main className="pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Back Button */}
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            onClick={() => navigate("/")}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
-            Back to Home
-          </motion.button>
-
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -156,7 +140,7 @@ const WaitlistPage = () => {
         />
       </div>
 
-      <Footer />
+      <WaitlistFooter />
     </div>
   );
 };

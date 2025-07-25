@@ -14,7 +14,6 @@ export const useWaitlist = () => {
     setError(null);
 
     try {
-      // Validate form data
       const validation = validateWaitlistForm(formData);
       if (!validation.isValid) {
         setError("Please fix the form errors and try again.");
@@ -22,8 +21,7 @@ export const useWaitlist = () => {
         return { success: false, errors: validation.errors };
       }
 
-      // Submit to API
-      const result = await waitlistAPI.submitWaitlist(formData);
+      const result = await waitlistAPI.submitWaitlistFetch(formData);
 
       if (result.success) {
         setIsSubmitted(true);
