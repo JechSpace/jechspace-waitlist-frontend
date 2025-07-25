@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useWaitlist } from "../hooks/useWaitlist";
 import { validateWaitlistForm } from "../utils/validation";
+import { waitlistStorage } from "../utils/waitlistStorage";
 import {
   CheckCircle,
   AlertCircle,
@@ -18,23 +19,33 @@ import {
   Users,
   Bell,
   Gift,
+  Twitter,
+  Linkedin,
+  Instagram,
 } from "lucide-react";
 
 const WaitlistForm = () => {
-  const [customerType, setCustomerType] = useState("user"); // "user" or "organisation"
+  const [customerType, setCustomerType] = useState("user");
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
-    phone: "",
     company: "",
     interests: "",
   });
   const [formErrors, setFormErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [hasJoinedBefore, setHasJoinedBefore] = useState(false);
 
   const { isLoading, isSubmitted, error, submitWaitlist, resetForm } =
     useWaitlist();
+
+  // Check if user has joined before on component mount
+  useEffect(() => {
+    const previousSubmission = waitlistStorage.hasJoined();
+    if (previousSubmission) {
+      setHasJoinedBefore(true);
+      setShowSuccess(true);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +54,6 @@ const WaitlistForm = () => {
       [name]: value,
     }));
 
-    // Clear error for this field when user starts typing
     if (formErrors[name]) {
       setFormErrors((prev) => ({
         ...prev,
@@ -54,27 +64,50 @@ const WaitlistForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
+    if (hasJoinedBefore) {
+      // Don't allow resubmission if they've already joined
+      return;
+    }
+
     const validation = validateWaitlistForm(formData, customerType);
     if (!validation.isValid) {
       setFormErrors(validation.errors);
       return;
     }
 
-    // Submit form with customer type
-    const result = await submitWaitlist({ ...formData, customerType });
+    const result = await submitWaitlist({
+      email: formData.email,
+      customerType: customerType,
+      company: formData.company,
+      interests: formData.interests,
+    });
+
     if (result.success) {
-      setShowSuccess(true);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        company: "",
-        interests: "",
-      });
-    } else if (result.errors) {
-      setFormErrors(result.errors);
+      // Only show success for status 200 (new submission)
+      if (
+        result.data?.status === "success" &&
+        !result.data?.message?.includes("already on waitlist")
+      ) {
+        // Store the successful submission in localStorage
+        waitlistStorage.setJoined({
+          email: formData.email,
+          customerType: customerType,
+          messageShown: result.data.message || "Successfully joined waitlist",
+        });
+
+        setHasJoinedBefore(true);
+        setShowSuccess(true);
+        setFormData({
+          email: "",
+          company: "",
+          interests: "",
+        });
+      } else {
+        // User already on waitlist - show error message
+        setFormErrors({ email: "Email is already on our waitlist" });
+      }
+    } else if (result.error) {
+      setFormErrors({ email: result.error });
     }
   };
 
@@ -98,54 +131,93 @@ const WaitlistForm = () => {
 
   if (isSubmitted || showSuccess) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md mx-auto"
-      >
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader className="text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <CheckCircle className="w-8 h-8 text-white" />
-            </motion.div>
-            <CardTitle className="text-green-800">
-              Welcome to the Waitlist!
-            </CardTitle>
-            <CardDescription className="text-green-600">
-              Thank you for joining JechSpace. We'll notify you as soon as we
-              launch!
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="space-y-3 text-sm text-green-700">
-              <p>✨ You're now part of our exclusive early access program</p>
-              <p>📧 Check your email for a confirmation message</p>
-              <p>🎉 Follow us on social media for updates</p>
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center space-y-6 p-8 bg-white rounded-2xl shadow-xl border border-gray-100"
+        >
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {hasJoinedBefore ? "Welcome Back!" : "Successfully Joined!"}
+            </h2>
+
+            <p className="text-lg text-gray-600 max-w-md mx-auto">
+              {hasJoinedBefore
+                ? "You're already on our waitlist. We'll notify you as soon as JechSpace is available!"
+                : "Thank you for joining our waitlist. We'll notify you as soon as JechSpace is available!"}
+            </p>
+
+            {hasJoinedBefore && (
+              <p className="text-sm text-gray-500">
+                Submitted on your device previously. You don't need to join
+                again.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-gray-600">Stay connected with us:</p>
+            <div className="flex justify-center space-x-6">
+              <a
+                href="https://x.com/jechspace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-600 transition-colors"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/jechspace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.instagram.com/jechspace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
             </div>
-            <Button
-              variant="outline"
-              className="mt-6 border-green-300 text-green-700 hover:bg-green-100"
+          </div>
+
+          {hasJoinedBefore && (
+            <button
               onClick={() => {
+                waitlistStorage.clear();
+                setHasJoinedBefore(false);
                 setShowSuccess(false);
-                resetForm();
+                setFormData({
+                  email: "",
+                  company: "",
+                  interests: "",
+                });
               }}
+              className="text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
             >
-              Join Another Person
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
+              Join with different email
+            </button>
+          )}
+        </motion.div>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto grid lg:grid-cols-2 gap-8 items-start">
+    <div
+      id="waitlist-form"
+      className="max-w-4xl mx-auto grid lg:grid-cols-2 gap-8 items-start"
+    >
       {/* Benefits Section */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -187,7 +259,7 @@ const WaitlistForm = () => {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800 text-sm">
-            <strong>20+</strong> people have already joined our waitlist. Don't
+            <strong>50+</strong> people have already joined our waitlist. Don't
             miss out!
           </p>
         </div>
@@ -238,54 +310,24 @@ const WaitlistForm = () => {
                   </button>
                 </div>
               </div>
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Input
-                    name="firstName"
-                    placeholder="First Name"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    className={formErrors.firstName ? "border-red-500" : ""}
-                  />
-                  {formErrors.firstName && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-sm mt-1"
-                    >
-                      {formErrors.firstName}
-                    </motion.p>
-                  )}
-                </div>
-                <div>
-                  <Input
-                    name="lastName"
-                    placeholder="Last Name"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    className={formErrors.lastName ? "border-red-500" : ""}
-                  />
-                  {formErrors.lastName && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-red-500 text-sm mt-1"
-                    >
-                      {formErrors.lastName}
-                    </motion.p>
-                  )}
-                </div>
-              </div>
-              {/* Email */}
-              <div>
+
+              {/* Email Field */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email Address *
+                </label>
                 <Input
+                  id="email"
                   name="email"
                   type="email"
-                  placeholder="Email Address"
+                  placeholder="Enter your email address"
                   value={formData.email}
                   onChange={handleInputChange}
                   className={formErrors.email ? "border-red-500" : ""}
+                  required
                 />
                 {formErrors.email && (
                   <motion.p
@@ -297,36 +339,24 @@ const WaitlistForm = () => {
                   </motion.p>
                 )}
               </div>
-              {/* Phone (Optional) */}
-              <div>
-                <Input
-                  name="phone"
-                  type="tel"
-                  placeholder="Phone Number (Optional)"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className={formErrors.phone ? "border-red-500" : ""}
-                />
-                {formErrors.phone && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-sm mt-1"
-                  >
-                    {formErrors.phone}
-                  </motion.p>
-                )}{" "}
-              </div>
 
               {/* Company/Organisation - Only show for organisations */}
               {customerType === "organisation" && (
-                <div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="company"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Organization Name *
+                  </label>
                   <Input
+                    id="company"
                     name="company"
-                    placeholder="Company/Organization *"
+                    placeholder="Enter your organization name"
                     value={formData.company}
                     onChange={handleInputChange}
                     className={formErrors.company ? "border-red-500" : ""}
+                    required
                   />
                   {formErrors.company && (
                     <motion.p
@@ -340,17 +370,25 @@ const WaitlistForm = () => {
                 </div>
               )}
 
-              {/* Interests (Optional) */}
-              <div>
+              {/* Interests Field */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="interests"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  What is one thing you would like to see in JechSpace?
+                </label>
                 <textarea
+                  id="interests"
                   name="interests"
-                  placeholder="What interests you most about JechSpace?"
+                  placeholder="Tell us..."
                   value={formData.interests}
                   onChange={handleInputChange}
                   rows={3}
                   className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 />
               </div>
+
               {/* Error Message */}
               <AnimatePresence>
                 {error && (
@@ -368,8 +406,8 @@ const WaitlistForm = () => {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium"
+                disabled={isLoading || hasJoinedBefore}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
