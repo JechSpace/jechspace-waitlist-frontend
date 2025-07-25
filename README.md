@@ -1,44 +1,57 @@
 # JechSpace Waitlist Frontend
 
-A modern, responsive waitlist landing page for JechSpace. This project leverages React for dynamic UI, Tailwind CSS for styling, and Framer Motion for smooth animations.
+A modern, responsive single-page waitlist application for JechSpace. This project features localStorage-based submission tracking, smooth animations, and a clean user experience optimized for waitlist signups.
 
-## Tech Stack
+## ✨ Features
+
+- **Single-Page Application**: Focused waitlist experience without unnecessary navigation
+- **Smart Tracking**: localStorage-based submission tracking prevents duplicate signups
+- **Responsive Design**: Optimized for all device sizes
+- **Smooth Animations**: Framer Motion powered interactions
+- **Form Validation**: Real-time validation with user-friendly error messages
+- **API Integration**: Connected to JechSpace waitlist API
+- **Success States**: Different messages for new vs returning users
+- **Social Integration**: Links to social media platforms
+
+## 🛠 Tech Stack
 
 - **Frontend Framework**: React 19
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui
-- **Animations**: Framer Motion
-- **Icons**: Lucide React
-- **Routing**: React Router DOM
-- **HTTP Client**: Axios
+- **Build Tool**: Vite 6.3.5
+- **Styling**: Tailwind CSS 4.1.10
+- **UI Components**: shadcn/ui with Radix UI
+- **Animations**: Framer Motion 12.18.1
+- **Icons**: Lucide React 0.519.0
+- **HTTP Client**: Axios 1.10.0
 - **Form Validation**: Custom validation utilities
+- **Storage**: Browser localStorage for submission tracking
 
-## Project Structure
+## 📁 Project Structure
 
-```
-JechSpace-frontend/
+```text
+JechSpace-waitlist-Frontend/
 ├── public/
 │   ├── index.html
-│   └── favicon.ico
+│   ├── favicon.png
+│   └── logo-blue.png
 ├── src/
 │   ├── components/
-│   │   ├── ui/           # shadcn/ui components
-│   │   ├── Hero.jsx
-│   │   ├── Features.jsx
-│   │   ├── Navbar.jsx
-│   │   ├── Footer.jsx
-│   │   └── WaitlistForm.jsx
+│   │   ├── ui/                 # shadcn/ui components
+│   │   │   ├── button.jsx
+│   │   │   ├── card.jsx
+│   │   │   └── input.jsx
+│   │   ├── Navbar.jsx          # Simplified navbar (logo + CTA)
+│   │   ├── WaitlistFooter.jsx  # Dedicated waitlist footer
+│   │   └── WaitlistForm.jsx    # Main waitlist form with localStorage
 │   ├── pages/
-│   │   ├── HomePage.jsx
-│   │   └── WaitlistPage.jsx
+│   │   └── WaitlistPage.jsx    # Single page layout
 │   ├── services/
-│   │   └── api.js        # Backend integration
+│   │   └── api.js              # API integration
 │   ├── hooks/
-│   │   └── useWaitlist.js
+│   │   └── useWaitlist.js      # Waitlist submission hook
 │   ├── utils/
-│   │   └── validation.js
-│   ├── App.jsx
+│   │   ├── validation.js       # Form validation
+│   │   └── waitlistStorage.js  # localStorage management
+│   ├── App.jsx                 # Root component
 │   ├── main.jsx
 │   └── index.css
 ├── package.json

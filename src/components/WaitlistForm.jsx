@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useWaitlist } from "../hooks/useWaitlist";
 import { validateWaitlistForm } from "../utils/validation";
+import { waitlistStorage } from "../utils/waitlistStorage";
 import {
   CheckCircle,
   AlertCircle,
@@ -18,6 +19,9 @@ import {
   Users,
   Bell,
   Gift,
+  Twitter,
+  Linkedin,
+  Instagram,
 } from "lucide-react";
 
 const WaitlistForm = () => {
@@ -29,9 +33,19 @@ const WaitlistForm = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [hasJoinedBefore, setHasJoinedBefore] = useState(false);
 
   const { isLoading, isSubmitted, error, submitWaitlist, resetForm } =
     useWaitlist();
+
+  // Check if user has joined before on component mount
+  useEffect(() => {
+    const previousSubmission = waitlistStorage.hasJoined();
+    if (previousSubmission) {
+      setHasJoinedBefore(true);
+      setShowSuccess(true);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +63,11 @@ const WaitlistForm = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (hasJoinedBefore) {
+      // Don't allow resubmission if they've already joined
+      return;
+    }
 
     const validation = validateWaitlistForm(formData, customerType);
     if (!validation.isValid) {
@@ -69,6 +88,14 @@ const WaitlistForm = () => {
         result.data?.status === "success" &&
         !result.data?.message?.includes("already on waitlist")
       ) {
+        // Store the successful submission in localStorage
+        waitlistStorage.setJoined({
+          email: formData.email,
+          customerType: customerType,
+          messageShown: result.data.message || "Successfully joined waitlist",
+        });
+
+        setHasJoinedBefore(true);
         setShowSuccess(true);
         setFormData({
           email: "",
@@ -104,66 +131,85 @@ const WaitlistForm = () => {
 
   if (isSubmitted || showSuccess) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md mx-auto"
-      >
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader className="text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
-            >
-              <CheckCircle className="w-8 h-8 text-white" />
-            </motion.div>
-            <CardTitle className="text-green-800">
-              Successfully Joined Waitlist!
-            </CardTitle>
-            <CardDescription className="text-green-600">
-              Thank you for joining JechSpace. We'll notify you as soon as we
-              launch!
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="space-y-4 text-sm text-green-700">
-              <p>You're now part of our exclusive early access program</p>
-              <div>
-                <p className="mb-3">Follow us for updates:</p>
-                <div className="flex justify-center gap-4">
-                  <a
-                    href="https://x.com/jechspace"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    Twitter
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/company/jechspace"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    LinkedIn
-                  </a>
-                  <a
-                    href="https://github.com/JechSpace"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    GitHub
-                  </a>
-                </div>
-              </div>
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center space-y-6 p-8 bg-white rounded-2xl shadow-xl border border-gray-100"
+        >
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {hasJoinedBefore ? "Welcome Back!" : "Successfully Joined!"}
+            </h2>
+
+            <p className="text-lg text-gray-600 max-w-md mx-auto">
+              {hasJoinedBefore
+                ? "You're already on our waitlist. We'll notify you as soon as JechSpace is available!"
+                : "Thank you for joining our waitlist. We'll notify you as soon as JechSpace is available!"}
+            </p>
+
+            {hasJoinedBefore && (
+              <p className="text-sm text-gray-500">
+                Submitted on your device previously. You don't need to join
+                again.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-gray-600">Stay connected with us:</p>
+            <div className="flex justify-center space-x-6">
+              <a
+                href="https://x.com/jechspace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-600 transition-colors"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/jechspace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.instagram.com/jechspace"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </div>
+
+          {hasJoinedBefore && (
+            <button
+              onClick={() => {
+                waitlistStorage.clear();
+                setHasJoinedBefore(false);
+                setShowSuccess(false);
+                setFormData({
+                  email: "",
+                  company: "",
+                  interests: "",
+                });
+              }}
+              className="text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
+            >
+              Join with different email
+            </button>
+          )}
+        </motion.div>
+      </div>
     );
   }
 
@@ -213,7 +259,7 @@ const WaitlistForm = () => {
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800 text-sm">
-            <strong>20+</strong> people have already joined our waitlist. Don't
+            <strong>50+</strong> people have already joined our waitlist. Don't
             miss out!
           </p>
         </div>
@@ -330,12 +376,12 @@ const WaitlistForm = () => {
                   htmlFor="interests"
                   className="text-sm font-medium text-gray-700"
                 >
-                  What interests you most about JechSpace?
+                  What is one thing you would like to see in JechSpace?
                 </label>
                 <textarea
                   id="interests"
                   name="interests"
-                  placeholder="Tell us what excites you about JechSpace..."
+                  placeholder="Tell us..."
                   value={formData.interests}
                   onChange={handleInputChange}
                   rows={3}
@@ -360,8 +406,8 @@ const WaitlistForm = () => {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium"
+                disabled={isLoading || hasJoinedBefore}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
