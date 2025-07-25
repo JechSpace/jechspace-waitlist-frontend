@@ -44,7 +44,7 @@ const WaitlistPage = () => {
             className="mt-16 grid md:grid-cols-3 gap-8 text-center"
           >
             <div className="p-6 bg-white rounded-xl shadow-sm border">
-              <div className="text-3xl font-bold text-blue-600 mb-2">20+</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">50+</div>
               <div className="text-gray-600">Early Adopters</div>
               <div className="text-sm text-gray-500 mt-1">
                 Already on the waitlist

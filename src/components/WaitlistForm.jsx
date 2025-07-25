@@ -64,7 +64,8 @@ const WaitlistForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (handleDuplicateSubmission()) {
+    if (hasJoinedBefore) {
+      // Don't allow resubmission if they've already joined
       return;
     }
 

@@ -14,10 +14,8 @@ export const waitlistStorage = {
         Date.now() - EXPIRY_DAYS * 24 * 60 * 60 * 1000
       );
 
-      if (submissionDate < expiryDate) {
-        // Remove expired data
-        localStorage.removeItem(STORAGE_KEY);
-        return false;
+      if (submissionDate > expiryDate) {
+        return parsed;
       } else {
         // Remove expired data
         localStorage.removeItem(STORAGE_KEY);
