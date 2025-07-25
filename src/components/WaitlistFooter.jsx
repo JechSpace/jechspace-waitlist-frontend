@@ -79,7 +79,7 @@ const WaitlistFooter = () => {
                   href="mailto:jechspace@gmail.com"
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  jechspace
+                  via email
                 </a>
               </p>
             </div>
