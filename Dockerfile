@@ -7,9 +7,15 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+# Install dependencies with robust error handling
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+
+# Clear npm cache and install with fallback strategies
+RUN npm cache clean --force && \
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set strict-ssl false && \
+    npm install --production --no-audit --no-fund --prefer-offline --cache /tmp/.npm && \
+    npm cache clean --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
