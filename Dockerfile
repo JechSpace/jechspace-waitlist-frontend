@@ -1,46 +1,40 @@
-# Multi-stage build for React + Vite app
-FROM node:18-alpine AS base
+# Use the Node alpine official image
+# https://hub.docker.com/_/node
+FROM node:lts-alpine AS build
 
-# Install dependencies only when needed
-FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+# Set config
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
+# Create and change to the app directory.
 WORKDIR /app
 
-# Install dependencies with robust error handling
-COPY package.json package-lock.json* ./
+# Copy the files to the container image
+COPY package*.json ./
 
-# Clear npm cache and install with fallback strategies
-RUN npm cache clean --force && \
-    npm config set registry https://registry.npmjs.org/ && \
-    npm config set strict-ssl false && \
-    npm install --production --no-audit --no-fund --prefer-offline --cache /tmp/.npm && \
-    npm cache clean --force
+# Install packages
+RUN npm ci
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Copy local code to the container image.
+COPY . ./
 
-# Build the application
+# Build the app.
 RUN npm run build
 
-# Production image, copy all the files and run the app
-FROM nginx:alpine AS runner
-WORKDIR /usr/share/nginx/html
+# Use the Caddy image
+FROM caddy
 
-# Remove default nginx static assets
-RUN rm -rf ./*
+# Create and change to the app directory.
+WORKDIR /app
 
-# Copy static assets from builder stage
-COPY --from=builder /app/dist .
+# Copy Caddyfile to the container image.
+COPY Caddyfile ./
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy local code to the container image.
+RUN caddy fmt Caddyfile --overwrite
 
-# Expose port 80
-EXPOSE 80
+# Copy files to the container image.
+COPY --from=build /app/dist ./dist
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+# Use Caddy to run/serve the app
+CMD ["caddy", "run", "--config", "Caddyfile", "--adapter", "caddyfile"]
