@@ -49,8 +49,7 @@ const WaitlistFooter = () => {
 
             {/* Tagline */}
             <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
-              Building the future of digital innovation. Join our early adopters
-              who are waiting to experience something extraordinary.
+              JechSpace is building a comprehensive digital workspace management platform designed to optimize office space, improve productivity, and enhance workplace experience. Join today and be part of shaping the future of work.
             </p>
 
             {/* Social Links */}
