@@ -253,15 +253,15 @@ const WaitlistForm = () => {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        setCustomerType("organisation")
+                                        setCustomerType("organization")
                                     }
                                     className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-                                        customerType === "organisation"
+                                        customerType === "organization"
                                             ? "bg-white text-blue-600 shadow-sm"
                                             : "text-gray-600 hover:text-gray-900"
                                     }`}
                                 >
-                                    Organisation
+                                    organization
                                 </button>
                             </div>
                         </div>
@@ -299,8 +299,8 @@ const WaitlistForm = () => {
                             )}
                         </div>
 
-                        {/* Company/Organisation - Only show for organisations */}
-                        {customerType === "organisation" && (
+                        {/* Company/organization - Only show for organizations */}
+                        {customerType === "organization" && (
                             <div className="space-y-2">
                                 <label
                                     htmlFor="company"

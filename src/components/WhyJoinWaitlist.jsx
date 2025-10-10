@@ -1,49 +1,28 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+// icons for free trial, priority access, onboarding support
+import { Star, Clock, Headset } from "lucide-react";
+
 const WhyJoinWaitlist = () => {
     const benefits = [
         {
-            icon: (
-                <svg
-                    className="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                </svg>
-            ),
-            title: "Early Access for Organizations",
+            icon: <Star className="w-6 h-6" />,
+            title: "Extended Free Trial",
             description:
-                "Organizations that join the waitlist will receive one month of free access when we launch.",
+                "Get 30 days free (vs. the standard 7) to fully explore JechSpace and its smart booking tools.",
         },
         {
-            icon: (
-                <svg
-                    className="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
-                </svg>
-            ),
-            title: "Shape the Future",
+            icon: <Clock className="w-6 h-6" />,
+            title: "Priority Access & Influence",
             description:
-                "Whether you're an individual or part of a team, your feedback will help us refine JechSpace to serve real workplace needs.",
+                "Test new features first and shape JechSpace with your feedback.",
         },
         {
-            icon: (
-                <svg
-                    className="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
-                </svg>
-            ),
-            title: "Exclusive Updates",
+            icon: <Headset className="w-6 h-6" />,
+            title: "Exclusive Onboarding Support",
             description:
-                "Get insider news, product previews, and behind-the-scenes updates on our development journey.",
+                "Receive personalized onboarding and training to maximize your team's use of JechSpace.",
         },
     ];
 
@@ -82,7 +61,6 @@ const WhyJoinWaitlist = () => {
                     </motion.div>
                 ))}
             </div>
-
         </motion.div>
     );
 };

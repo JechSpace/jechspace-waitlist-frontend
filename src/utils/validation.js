@@ -13,8 +13,8 @@ export const validateWaitlistForm = (formData, customerType = "user") => {
     errors.email = "Please enter a valid email address";
   }
 
-  // Company validation (required for organisations only)
-  if (customerType === "organisation") {
+  // Company validation (required for organizations only)
+  if (customerType === "organization") {
     if (!formData.company || formData.company.trim().length < 2) {
       errors.company = "Organization name is required";
     }
