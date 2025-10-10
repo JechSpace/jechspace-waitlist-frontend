@@ -48,7 +48,7 @@ export const waitlistAPI = {
           formData.customerType === "user" ? "individual" : "organization",
       };
 
-      if (formData.customerType === "organisation") {
+      if (formData.customerType === "organization") {
         apiPayload.organization_name = formData.company;
       }
 
@@ -88,7 +88,7 @@ export const waitlistAPI = {
           formData.customerType === "user" ? "individual" : "organization",
       };
 
-      if (formData.customerType === "organisation") {
+      if (formData.customerType === "organization") {
         apiPayload.organization_name = formData.company;
       }
 
