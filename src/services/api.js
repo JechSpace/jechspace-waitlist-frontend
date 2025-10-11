@@ -4,6 +4,14 @@ import axios from "axios";
 const API_BASE_URL =
     import.meta.env.VITE_API_URL || "https://api.jechspace.com/api/v1";
 
+// Dev-only environment visibility
+if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.info("[API] Using base URL:", API_BASE_URL);
+    // eslint-disable-next-line no-console
+    console.info("[API] Environment:", import.meta.env.MODE);
+}
+
 // Create axios instance with default configuration
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -37,9 +45,48 @@ api.interceptors.response.use(
     }
 );
 
+// Dev-only logging for API debugging
+const devLog = (...args) => {
+    if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.log("[API]", ...args);
+    }
+};
+
+// Retry wrapper with exponential backoff for network failures
+const withRetry = async (fn, maxRetries = 2, baseDelay = 1000) => {
+    let lastError;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            return await fn();
+        } catch (error) {
+            lastError = error;
+            // Only retry on network errors, not HTTP 4xx/5xx responses
+            const isNetworkError =
+                !error.response &&
+                (error.code === "ENOTFOUND" ||
+                    error.message?.includes("Network Error") ||
+                    error.message?.includes("Failed to fetch"));
+
+            if (isNetworkError && attempt < maxRetries) {
+                const delay = baseDelay * Math.pow(2, attempt);
+                devLog(
+                    `Retrying request in ${delay}ms (attempt ${attempt + 1}/${
+                        maxRetries + 1
+                    })`
+                );
+                await new Promise((resolve) => setTimeout(resolve, delay));
+                continue;
+            }
+            throw error;
+        }
+    }
+    throw lastError;
+};
+
 // Waitlist API functions
 export const waitlistAPI = {
-    // Submit waitlist form
+    // Submit waitlist form (unified axios approach with retry)
     submitWaitlistFetch: async (formData) => {
         try {
             const apiPayload = {
@@ -58,31 +105,39 @@ export const waitlistAPI = {
                 apiPayload.interests = formData.interests;
             }
 
-            const response = await fetch(`${API_BASE_URL}/waitlist/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(apiPayload),
+            devLog("Submitting waitlist form:", {
+                email: apiPayload.email,
+                user_type: apiPayload.user_type,
             });
 
-            if (!response.ok) {
-                const errorData = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorData}`);
-            }
+            const response = await withRetry(() =>
+                api.post("/waitlist/", apiPayload)
+            );
 
-            const result = await response.json();
             return {
                 success: true,
-                data: result,
+                data: response.data,
                 message: "Successfully joined the waitlist!",
             };
         } catch (error) {
+            // Detect network/DNS failures for user-friendly messages
+            const isNetworkError =
+                !error.response &&
+                (error.code === "ENOTFOUND" ||
+                    error.message?.includes("Network Error") ||
+                    error.message?.includes("Failed to fetch") ||
+                    !navigator.onLine);
+
+            devLog("Submit error:", error);
+
             return {
                 success: false,
-                error:
-                    error.message ||
-                    "Failed to join waitlist. Please try again.",
+                error: isNetworkError
+                    ? "Unable to connect to our servers. Please check your internet connection and try again."
+                    : error.response?.data?.message ||
+                      error.message ||
+                      "Failed to join waitlist. Please try again.",
+                details: error.response?.data,
             };
         }
     },
@@ -128,19 +183,29 @@ export const waitlistAPI = {
     // Check if email is already on waitlist
     checkEmail: async (email) => {
         try {
-            const response = await api.get(
-                `/waitlist/check/?email=${encodeURIComponent(email)}`
+            devLog("Checking email:", email);
+            const response = await withRetry(() =>
+                api.get(`/waitlist/check/?email=${encodeURIComponent(email)}`)
             );
             return {
                 success: true,
                 exists: response.data.exists,
             };
         } catch (error) {
+            const isNetworkError =
+                !error.response &&
+                (error.code === "ENOTFOUND" ||
+                    error.message?.includes("Network Error") ||
+                    !navigator.onLine);
+
+            devLog("Check email error:", error);
+
             return {
                 success: false,
-                error:
-                    error.response?.data?.message ||
-                    "Failed to check email status",
+                error: isNetworkError
+                    ? "Unable to verify email. Please check your connection and try again."
+                    : error.response?.data?.message ||
+                      "Failed to check email status",
             };
         }
     },
@@ -148,17 +213,27 @@ export const waitlistAPI = {
     // Get waitlist statistics
     getStats: async () => {
         try {
-            const response = await api.get("/waitlist/stats/");
+            devLog("Fetching waitlist stats");
+            const response = await withRetry(() => api.get("/waitlist/stats/"));
             return {
                 success: true,
                 data: response.data,
             };
         } catch (error) {
+            const isNetworkError =
+                !error.response &&
+                (error.code === "ENOTFOUND" ||
+                    error.message?.includes("Network Error") ||
+                    !navigator.onLine);
+
+            devLog("Get stats error:", error);
+
             return {
                 success: false,
-                error:
-                    error.response?.data?.message ||
-                    "Failed to fetch statistics",
+                error: isNetworkError
+                    ? "Unable to load statistics. Please check your connection."
+                    : error.response?.data?.message ||
+                      "Failed to fetch statistics",
             };
         }
     },

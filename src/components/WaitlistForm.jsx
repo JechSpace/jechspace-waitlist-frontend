@@ -56,11 +56,17 @@ const WaitlistForm = () => {
             [name]: value,
         }));
 
+        // Clear field-specific errors
         if (formErrors[name]) {
             setFormErrors((prev) => ({
                 ...prev,
                 [name]: "",
             }));
+        }
+
+        // Clear server error popup when user starts typing
+        if (serverErrorPopup) {
+            setServerErrorPopup(null);
         }
     };
     const handleSubmit = async (e) => {
@@ -110,9 +116,9 @@ const WaitlistForm = () => {
                 setFormErrors({ email: "Email is already on our waitlist" });
             }
         } else if (result.error) {
-            // If server returns structured validation info, show popup with friendly message
-            // Example server response for organization common domains:
-            // { status: 'success', message: 'Invalid data provided', errors: { error: { code: 'COMMON_EMAIL_DOMAIN', message: 'Organization emails cannot use common domains like gmail.com' } } }
+            // Clear any existing errors first to avoid multiple error displays
+            setFormErrors({});
+            setServerErrorPopup(null);
 
             // Try to parse structured error codes
             const raw = result.error;
@@ -123,7 +129,7 @@ const WaitlistForm = () => {
                 parsed = raw;
             }
 
-            // Detect common domain error
+            // Detect common domain error - show as popup for better UX
             const commonDomainCode =
                 parsed?.errors?.error?.code || parsed?.code;
             if (commonDomainCode === "COMMON_EMAIL_DOMAIN") {
@@ -135,18 +141,16 @@ const WaitlistForm = () => {
                         "Use a company email (e.g. you@yourcompany.com) or switch to 'Individual' if appropriate.",
                 });
             } else {
-                // Generic server error - show friendly message
+                // For other errors, show as popup instead of inline to avoid duplicate displays
                 setServerErrorPopup({
                     title: "Unable to join waitlist",
                     message:
-                        parsed?.message ||
-                        "We couldn't process your request right now. Please try again later.",
+                        typeof result.error === "string"
+                            ? result.error
+                            : parsed?.message ||
+                              "We couldn't process your request right now. Please try again later.",
                     suggestion: parsed?.errors?.error?.message || null,
                 });
-            }
-            // Also set formErrors.email if there's a direct string to show near the field
-            if (typeof result.error === "string") {
-                setFormErrors({ email: result.error });
             }
         }
     };
@@ -467,23 +471,6 @@ const WaitlistForm = () => {
                                 className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-3 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                             />
                         </div>
-
-                        {/* Error Message */}
-                        <AnimatePresence>
-                            {error && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md"
-                                >
-                                    <AlertCircle className="w-4 h-4 text-red-500" />
-                                    <p className="text-red-700 text-sm">
-                                        {error}
-                                    </p>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
 
                         {/* Submit Button */}
                         <Button
