@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Configure base URL for the API
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://api-waitlist.jechspace.com/api/v1";
+  import.meta.env.VITE_API_URL || "https://api.jechspace.com/api/v1";
 
 // Create axios instance with default configuration
 const api = axios.create({
