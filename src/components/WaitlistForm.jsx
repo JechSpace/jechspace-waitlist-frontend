@@ -19,7 +19,9 @@ import {
     Twitter,
     Linkedin,
     Instagram,
-    Users, Workflow, Bell,
+    Users,
+    Workflow,
+    Bell,
 } from "lucide-react";
 
 const WaitlistForm = () => {
@@ -32,6 +34,8 @@ const WaitlistForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const [showSuccess, setShowSuccess] = useState(false);
     const [hasJoinedBefore, setHasJoinedBefore] = useState(false);
+    const [serverErrorPopup, setServerErrorPopup] = useState(null);
+    const [showOrgHelper, setShowOrgHelper] = useState(true);
 
     const { isLoading, isSubmitted, error, submitWaitlist, resetForm } =
         useWaitlist();
@@ -106,7 +110,44 @@ const WaitlistForm = () => {
                 setFormErrors({ email: "Email is already on our waitlist" });
             }
         } else if (result.error) {
-            setFormErrors({ email: result.error });
+            // If server returns structured validation info, show popup with friendly message
+            // Example server response for organization common domains:
+            // { status: 'success', message: 'Invalid data provided', errors: { error: { code: 'COMMON_EMAIL_DOMAIN', message: 'Organization emails cannot use common domains like gmail.com' } } }
+
+            // Try to parse structured error codes
+            const raw = result.error;
+            let parsed = null;
+            try {
+                parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+            } catch (e) {
+                parsed = raw;
+            }
+
+            // Detect common domain error
+            const commonDomainCode =
+                parsed?.errors?.error?.code || parsed?.code;
+            if (commonDomainCode === "COMMON_EMAIL_DOMAIN") {
+                setServerErrorPopup({
+                    title: "Organization email not accepted",
+                    message:
+                        "It looks like you're signing up as an organization using a common email provider (e.g. gmail.com, yahoo.com). For organization sign ups please use a company-issued email address, or choose 'Individual' if this is a personal sign-up.",
+                    suggestion:
+                        "Use a company email (e.g. you@yourcompany.com) or switch to 'Individual' if appropriate.",
+                });
+            } else {
+                // Generic server error - show friendly message
+                setServerErrorPopup({
+                    title: "Unable to join waitlist",
+                    message:
+                        parsed?.message ||
+                        "We couldn't process your request right now. Please try again later.",
+                    suggestion: parsed?.errors?.error?.message || null,
+                });
+            }
+            // Also set formErrors.email if there's a direct string to show near the field
+            if (typeof result.error === "string") {
+                setFormErrors({ email: result.error });
+            }
         }
     };
 
@@ -234,6 +275,49 @@ const WaitlistForm = () => {
                         experience the future of workspace management
                     </CardDescription>
                 </CardHeader>
+                {/* Server validation popup (dismissible) */}
+                <AnimatePresence>
+                    {serverErrorPopup && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="mx-6 -mt-4 mb-4"
+                        >
+                            <div className="relative rounded-xl bg-yellow-50 border border-yellow-200 p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0">
+                                        <AlertCircle className="w-5 h-5 text-yellow-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-semibold text-yellow-800">
+                                            {serverErrorPopup.title}
+                                        </div>
+                                        <div className="text-sm text-yellow-700 mt-1">
+                                            {serverErrorPopup.message}
+                                        </div>
+                                        {serverErrorPopup.suggestion && (
+                                            <div className="text-sm text-yellow-600 mt-2">
+                                                <strong>Suggestion:</strong>{" "}
+                                                {serverErrorPopup.suggestion}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            setServerErrorPopup(null)
+                                        }
+                                        className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 p-1 rounded"
+                                        aria-label="Close notification"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Customer Type Toggle */}
@@ -278,7 +362,11 @@ const WaitlistForm = () => {
                                 id="email"
                                 name="email"
                                 type="email"
-                                placeholder="Enter your email address"
+                                placeholder={
+                                    customerType === "organization"
+                                        ? "you@yourcompany.com"
+                                        : "you@example.com"
+                                }
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 className={`h-12 ${
@@ -298,6 +386,33 @@ const WaitlistForm = () => {
                                 </motion.p>
                             )}
                         </div>
+
+                        {/* Organization helper - only show when org selected */}
+                        {customerType === "organization" && showOrgHelper && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-blue-700"
+                            >
+                                <div className="flex-1">
+                                    <strong>Organization sign-up tip:</strong>
+                                    <div className="mt-1">
+                                        Please use a company email (e.g.
+                                        you@yourcompany.com). Personal emails
+                                        like Gmail, Yahoo, or Outlook may be
+                                        rejected for organization accounts.
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowOrgHelper(false)}
+                                    className="text-blue-700 hover:text-blue-900 p-1 rounded"
+                                    aria-label="Dismiss organization helper"
+                                >
+                                    ✕
+                                </button>
+                            </motion.div>
+                        )}
 
                         {/* Company/organization - Only show for organizations */}
                         {customerType === "organization" && (
