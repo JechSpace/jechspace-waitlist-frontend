@@ -21,7 +21,7 @@ const WaitlistPage = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="space-y-6 text-center lg:text-left order-2 lg:order-1"
+                            className="space-y-6 text-center lg:text-left order-1 lg:order-1"
                         >
                             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                                 The Smarter Way to{" "}
@@ -70,7 +70,7 @@ const WaitlistPage = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="relative h-[300px] sm:h-[400px] lg:h-[500px] flex items-center justify-center order-1 lg:order-2"
+                            className="relative h-[300px] sm:h-[400px] lg:h-[500px] flex items-center justify-center order-2 lg:order-2 mt-6 sm:mt-8 lg:mt-0"
                         >
                             {/* Clean background grid pattern */}
                             <div className="absolute inset-0 opacity-30">
