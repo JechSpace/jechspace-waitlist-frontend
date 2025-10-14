@@ -349,7 +349,7 @@ const WaitlistForm = () => {
                                             : "text-gray-600 hover:text-gray-900"
                                     }`}
                                 >
-                                    organization
+                                    Organization
                                 </button>
                             </div>
                         </div>

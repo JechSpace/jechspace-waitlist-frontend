@@ -102,7 +102,7 @@ export const waitlistAPI = {
             }
             // Include interests if provided by the form
             if (formData.interests) {
-                apiPayload.interests = formData.interests;
+                apiPayload.user_suggestion = formData.interests;
             }
 
             devLog("Submitting waitlist form:", {
@@ -158,7 +158,7 @@ export const waitlistAPI = {
             }
             // Include interests if provided by the form
             if (formData.interests) {
-                apiPayload.interests = formData.interests;
+                apiPayload.user_suggestion = formData.interests;
             }
 
             const response = await api.post("/waitlist/", apiPayload);
