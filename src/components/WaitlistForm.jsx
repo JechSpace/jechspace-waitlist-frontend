@@ -391,33 +391,6 @@ const WaitlistForm = () => {
                             )}
                         </div>
 
-                        {/* Organization helper - only show when org selected */}
-                        {customerType === "organization" && showOrgHelper && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-blue-700"
-                            >
-                                <div className="flex-1">
-                                    <strong>Organization sign-up tip:</strong>
-                                    <div className="mt-1">
-                                        Please use a company email (e.g.
-                                        you@yourcompany.com). Personal emails
-                                        like Gmail, Yahoo, or Outlook may be
-                                        rejected for organization accounts.
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setShowOrgHelper(false)}
-                                    className="text-blue-700 hover:text-blue-900 p-1 rounded"
-                                    aria-label="Dismiss organization helper"
-                                >
-                                    ✕
-                                </button>
-                            </motion.div>
-                        )}
-
                         {/* Company/organization - Only show for organizations */}
                         {customerType === "organization" && (
                             <div className="space-y-2">

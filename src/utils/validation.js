@@ -1,3 +1,22 @@
+// Common email providers that should not be allowed for organizations
+// Mirrored from backend constants.py
+const COMMON_EMAIL_DOMAINS = [
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "outlook.com",
+    "aol.com",
+    "icloud.com",
+    "mail.com",
+    "protonmail.com",
+    "zoho.com",
+    "yandex.com",
+    "live.com",
+    "msn.com",
+    "me.com",
+    "gmx.com",
+];
+
 // Email validation function
 export const validateEmail = (email) => {
     if (typeof email !== "string") return false;
@@ -36,6 +55,15 @@ export const validateEmail = (email) => {
     return true;
 };
 
+// Check if email domain is a common personal email provider
+export const isCommonEmailDomain = (email) => {
+    if (typeof email !== "string") return false;
+    const parts = email.split("@");
+    if (parts.length !== 2) return false;
+    const domain = parts[1].toLowerCase();
+    return COMMON_EMAIL_DOMAINS.includes(domain);
+};
+
 // Simplified waitlist form validation - only email and company
 export const validateWaitlistForm = (formData, customerType = "user") => {
     const errors = {};
@@ -43,6 +71,13 @@ export const validateWaitlistForm = (formData, customerType = "user") => {
     // Email validation
     if (!formData.email || !validateEmail(formData.email)) {
         errors.email = "Please enter a valid email address";
+    } else if (
+        customerType === "organization" &&
+        isCommonEmailDomain(formData.email)
+    ) {
+        // Check if organization is using a common personal email domain
+        errors.email =
+            "Organizations must use a company email address (e.g., you@yourcompany.com)";
     }
 
     // Company validation (required for organizations only)
