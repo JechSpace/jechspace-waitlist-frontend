@@ -13,7 +13,7 @@ const WaitlistPage = () => {
 
     useEffect(() => {
         const typed = new Typed(typedElement.current, {
-            strings: ["Manage your", "Find and Book a"],
+            strings: ["Manage your", "Find and Book"],
             typeSpeed: 60,
             backSpeed: 60,
             backDelay: 1800,
