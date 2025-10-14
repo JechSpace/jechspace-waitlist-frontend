@@ -13,7 +13,7 @@ const WaitlistPage = () => {
 
     useEffect(() => {
         const typed = new Typed(typedElement.current, {
-            strings: ["Manage your", "Find and Book"],
+            strings: ["Manage your Workspace", "Book Workspaces"],
             typeSpeed: 60,
             backSpeed: 60,
             backDelay: 1800,
@@ -49,8 +49,6 @@ const WaitlistPage = () => {
                                     ref={typedElement}
                                     className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
                                 />{" "}
-                                <br className="hidden sm:block" />
-                                Workspace
                             </h1>
                             <p className="text-sm sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                                 Whether you're managing enterprise workspaces or
