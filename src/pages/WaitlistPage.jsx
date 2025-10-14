@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import Typed from "typed.js";
 import Navbar from "../components/Navbar";
 import WaitlistFooter from "../components/WaitlistFooter";
 import WaitlistForm from "../components/WaitlistForm";
@@ -7,6 +8,25 @@ import WhyJoinWaitlist from "../components/WhyJoinWaitlist";
 import FAQSection from "../components/FAQSection";
 
 const WaitlistPage = () => {
+    // Create reference for the typing animation
+    const typedElement = useRef(null);
+
+    useEffect(() => {
+        const typed = new Typed(typedElement.current, {
+            strings: ["Manage your", "Find and Book a"],
+            typeSpeed: 60,
+            backSpeed: 60,
+            backDelay: 1800,
+            loop: true,
+            showCursor: false,
+        });
+
+        return () => {
+            // Cleanup on unmount
+            typed.destroy();
+        };
+    }, []);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
             <Navbar />
@@ -25,16 +45,18 @@ const WaitlistPage = () => {
                         >
                             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                                 The Smarter Way to{" "}
-                                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                    Manage
-                                </span>{" "}
-                                Your Workspace
+                                <span
+                                    ref={typedElement}
+                                    className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                                />{" "}
+                                <br className="hidden sm:block" />
+                                Workspace
                             </h1>
                             <p className="text-sm sm:text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                                JechSpace helps organizations map, manage, and
-                                optimize office spaces with real-time insights,
-                                scheduling, and analytics. Join the waitlist for
-                                early access and exclusive launch perks.
+                                Whether you're managing enterprise workspaces or
+                                booking your next desk, JechSpace delivers
+                                real-time insights, seamless scheduling, and
+                                powerful analytics.
                             </p>
                             <div className="pt-4">
                                 <button
