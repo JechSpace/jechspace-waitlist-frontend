@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { trackCTAClick } from "../utils/analytics";
 
 const Navbar = () => {
     const [hideNavbar, setHideNavbar] = useState(false);
@@ -20,6 +21,9 @@ const Navbar = () => {
     }, []);
 
     const scrollToForm = () => {
+        // Track the click before scrolling
+        trackCTAClick("navbar");
+        
         const formElement = document.getElementById("waitlist-form");
         if (formElement) {
             formElement.scrollIntoView({ behavior: "smooth" });

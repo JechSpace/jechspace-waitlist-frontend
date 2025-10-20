@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Card,
@@ -23,6 +23,14 @@ import {
     Workflow,
     Bell,
 } from "lucide-react";
+import {
+    trackCustomerTypeSelect,
+    trackFormStart,
+    trackFormSubmit,
+    trackFormError,
+    trackAlreadyJoined,
+    trackSocialClick,
+} from "../utils/analytics";
 
 const WaitlistForm = () => {
     const [customerType, setCustomerType] = useState("user");
@@ -36,6 +44,7 @@ const WaitlistForm = () => {
     const [hasJoinedBefore, setHasJoinedBefore] = useState(false);
     const [serverErrorPopup, setServerErrorPopup] = useState(null);
     const [showOrgHelper, setShowOrgHelper] = useState(true);
+    const formStartTracked = useRef(false);
 
     const { isLoading, isSubmitted, error, submitWaitlist, resetForm } =
         useWaitlist();
@@ -46,11 +55,25 @@ const WaitlistForm = () => {
         if (previousSubmission) {
             setHasJoinedBefore(true);
             setShowSuccess(true);
+            trackAlreadyJoined(); // Track returning user
         }
     }, []);
 
+    // Track customer type selection
+    const handleCustomerTypeChange = (type) => {
+        setCustomerType(type);
+        trackCustomerTypeSelect(type);
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        // Track form start on first email input
+        if (name === "email" && !formStartTracked.current && value.length > 0) {
+            trackFormStart(customerType);
+            formStartTracked.current = true;
+        }
+
         setFormData((prev) => ({
             ...prev,
             [name]: value,
@@ -69,17 +92,21 @@ const WaitlistForm = () => {
             setServerErrorPopup(null);
         }
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (hasJoinedBefore) {
-            // Don't allow resubmission if they've already joined
             return;
         }
 
         const validation = validateWaitlistForm(formData, customerType);
         if (!validation.isValid) {
             setFormErrors(validation.errors);
+            
+            // Track validation errors
+            const errorMessages = Object.values(validation.errors).join(", ");
+            trackFormError("validation", errorMessages, customerType);
             return;
         }
 
@@ -91,12 +118,13 @@ const WaitlistForm = () => {
         });
 
         if (result.success) {
-            // Only show success for status 200 (new submission)
             if (
                 result.data?.status === "success" &&
                 !result.data?.message?.includes("already on waitlist")
             ) {
-                // Store the successful submission in localStorage
+                // Track successful submission
+                trackFormSubmit(customerType, formData.company.length > 0);
+
                 waitlistStorage.setJoined({
                     email: formData.email,
                     customerType: customerType,
@@ -112,15 +140,13 @@ const WaitlistForm = () => {
                     interests: "",
                 });
             } else {
-                // User already on waitlist - show error message
                 setFormErrors({ email: "Email is already on our waitlist" });
+                trackFormError("server", "Email already exists", customerType);
             }
         } else if (result.error) {
-            // Clear any existing errors first to avoid multiple error displays
             setFormErrors({});
             setServerErrorPopup(null);
 
-            // Try to parse structured error codes
             const raw = result.error;
             let parsed = null;
             try {
@@ -129,10 +155,11 @@ const WaitlistForm = () => {
                 parsed = raw;
             }
 
-            // Detect common domain error - show as popup for better UX
             const commonDomainCode =
                 parsed?.errors?.error?.code || parsed?.code;
+            
             if (commonDomainCode === "COMMON_EMAIL_DOMAIN") {
+                const errorMsg = "Common email domain not allowed for organizations";
                 setServerErrorPopup({
                     title: "Organization email not accepted",
                     message:
@@ -140,19 +167,25 @@ const WaitlistForm = () => {
                     suggestion:
                         "Use a company email (e.g. you@yourcompany.com) or switch to 'Individual' if appropriate.",
                 });
+                trackFormError("server", errorMsg, customerType);
             } else {
-                // For other errors, show as popup instead of inline to avoid duplicate displays
+                const errorMsg = typeof result.error === "string"
+                    ? result.error
+                    : parsed?.message || "Unknown server error";
+                    
                 setServerErrorPopup({
                     title: "Unable to join waitlist",
-                    message:
-                        typeof result.error === "string"
-                            ? result.error
-                            : parsed?.message ||
-                              "We couldn't process your request right now. Please try again later.",
+                    message: errorMsg,
                     suggestion: parsed?.errors?.error?.message || null,
                 });
+                trackFormError("server", errorMsg, customerType);
             }
         }
+    };
+
+    // Track social link clicks
+    const handleSocialClick = (platform) => {
+        trackSocialClick(platform);
     };
 
     const benefits = [
@@ -166,7 +199,7 @@ const WaitlistForm = () => {
             icon: <Workflow className="w-5 h-5" />,
             title: "Contribute to the Future of Workspace Management",
             description:
-                "Whether you’re an individual or part of a team, your feedback will help us refine JechSpace to serve real workplace needs.",
+                "Whether you're an individual or part of a team, your feedback will help us refine JechSpace to serve real workplace needs.",
         },
         {
             icon: <Bell className="w-5 h-5" />,
@@ -217,6 +250,7 @@ const WaitlistForm = () => {
                                 href="https://x.com/jechspace"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => handleSocialClick("twitter")}
                                 className="text-blue-500 hover:text-blue-600 transition-colors"
                             >
                                 <Twitter className="w-6 h-6" />
@@ -225,6 +259,7 @@ const WaitlistForm = () => {
                                 href="https://www.linkedin.com/company/jechspace"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => handleSocialClick("linkedin")}
                                 className="text-blue-600 hover:text-blue-700 transition-colors"
                             >
                                 <Linkedin className="w-6 h-6" />
@@ -233,6 +268,7 @@ const WaitlistForm = () => {
                                 href="https://www.instagram.com/jechspace"
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => handleSocialClick("instagram")}
                                 className="text-blue-600 hover:text-blue-700 transition-colors"
                             >
                                 <Instagram className="w-6 h-6" />
@@ -251,6 +287,7 @@ const WaitlistForm = () => {
                                     company: "",
                                     interests: "",
                                 });
+                                formStartTracked.current = false;
                             }}
                             className="text-sm text-gray-500 hover:text-gray-700 underline transition-colors"
                         >
@@ -279,7 +316,6 @@ const WaitlistForm = () => {
                         experience smarter workspace management.
                     </CardDescription>
                 </CardHeader>
-                {/* Server validation popup (dismissible) */}
                 <AnimatePresence>
                     {serverErrorPopup && (
                         <motion.div
@@ -329,7 +365,7 @@ const WaitlistForm = () => {
                             <div className="flex bg-gray-100 rounded-xl p-1">
                                 <button
                                     type="button"
-                                    onClick={() => setCustomerType("user")}
+                                    onClick={() => handleCustomerTypeChange("user")}
                                     className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
                                         customerType === "user"
                                             ? "bg-white text-blue-600 shadow-sm"
@@ -340,9 +376,7 @@ const WaitlistForm = () => {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setCustomerType("organization")
-                                    }
+                                    onClick={() => handleCustomerTypeChange("organization")}
                                     className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
                                         customerType === "organization"
                                             ? "bg-white text-blue-600 shadow-sm"

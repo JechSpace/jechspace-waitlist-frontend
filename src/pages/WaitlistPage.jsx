@@ -16,6 +16,7 @@ import WaitlistForm from "../components/WaitlistForm";
 import WhyJoinWaitlist from "../components/WhyJoinWaitlist";
 import FAQSection from "../components/FAQSection";
 import WaitlistFooter from "../components/WaitlistFooter";
+import { trackCTAClick } from "../utils/analytics";
 
 const WaitlistPage = () => {
   const typedElement = useRef(null);
@@ -69,11 +70,12 @@ const WaitlistPage = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() =>
+                onClick={() => {
+                  trackCTAClick("hero"); // Track before scrolling
                   document.getElementById("waitlist-form")?.scrollIntoView({
                     behavior: "smooth",
-                  })
-                }
+                  });
+                }}
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-shadow"
               >
                 Join the Waitlist
