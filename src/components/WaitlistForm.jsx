@@ -19,7 +19,9 @@ import {
     Twitter,
     Linkedin,
     Instagram,
-    Users, Workflow, Bell,
+    Users,
+    Workflow,
+    Bell,
 } from "lucide-react";
 
 const WaitlistForm = () => {
@@ -32,6 +34,8 @@ const WaitlistForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const [showSuccess, setShowSuccess] = useState(false);
     const [hasJoinedBefore, setHasJoinedBefore] = useState(false);
+    const [serverErrorPopup, setServerErrorPopup] = useState(null);
+    const [showOrgHelper, setShowOrgHelper] = useState(true);
 
     const { isLoading, isSubmitted, error, submitWaitlist, resetForm } =
         useWaitlist();
@@ -52,11 +56,17 @@ const WaitlistForm = () => {
             [name]: value,
         }));
 
+        // Clear field-specific errors
         if (formErrors[name]) {
             setFormErrors((prev) => ({
                 ...prev,
                 [name]: "",
             }));
+        }
+
+        // Clear server error popup when user starts typing
+        if (serverErrorPopup) {
+            setServerErrorPopup(null);
         }
     };
     const handleSubmit = async (e) => {
@@ -106,7 +116,42 @@ const WaitlistForm = () => {
                 setFormErrors({ email: "Email is already on our waitlist" });
             }
         } else if (result.error) {
-            setFormErrors({ email: result.error });
+            // Clear any existing errors first to avoid multiple error displays
+            setFormErrors({});
+            setServerErrorPopup(null);
+
+            // Try to parse structured error codes
+            const raw = result.error;
+            let parsed = null;
+            try {
+                parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+            } catch (e) {
+                parsed = raw;
+            }
+
+            // Detect common domain error - show as popup for better UX
+            const commonDomainCode =
+                parsed?.errors?.error?.code || parsed?.code;
+            if (commonDomainCode === "COMMON_EMAIL_DOMAIN") {
+                setServerErrorPopup({
+                    title: "Organization email not accepted",
+                    message:
+                        "It looks like you're signing up as an organization using a common email provider (e.g. gmail.com, yahoo.com). For organization sign ups please use a company-issued email address, or choose 'Individual' if this is a personal sign-up.",
+                    suggestion:
+                        "Use a company email (e.g. you@yourcompany.com) or switch to 'Individual' if appropriate.",
+                });
+            } else {
+                // For other errors, show as popup instead of inline to avoid duplicate displays
+                setServerErrorPopup({
+                    title: "Unable to join waitlist",
+                    message:
+                        typeof result.error === "string"
+                            ? result.error
+                            : parsed?.message ||
+                              "We couldn't process your request right now. Please try again later.",
+                    suggestion: parsed?.errors?.error?.message || null,
+                });
+            }
         }
     };
 
@@ -231,9 +276,52 @@ const WaitlistForm = () => {
                     </CardTitle>
                     <CardDescription className="text-gray-600 mt-2">
                         Get early access to JechSpace and be the first to
-                        experience the future of workspace management
+                        experience smarter workspace management.
                     </CardDescription>
                 </CardHeader>
+                {/* Server validation popup (dismissible) */}
+                <AnimatePresence>
+                    {serverErrorPopup && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="mx-6 -mt-4 mb-4"
+                        >
+                            <div className="relative rounded-xl bg-yellow-50 border border-yellow-200 p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0">
+                                        <AlertCircle className="w-5 h-5 text-yellow-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-semibold text-yellow-800">
+                                            {serverErrorPopup.title}
+                                        </div>
+                                        <div className="text-sm text-yellow-700 mt-1">
+                                            {serverErrorPopup.message}
+                                        </div>
+                                        {serverErrorPopup.suggestion && (
+                                            <div className="text-sm text-yellow-600 mt-2">
+                                                <strong>Suggestion:</strong>{" "}
+                                                {serverErrorPopup.suggestion}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            setServerErrorPopup(null)
+                                        }
+                                        className="absolute top-2 right-2 text-yellow-700 hover:text-yellow-900 p-1 rounded"
+                                        aria-label="Close notification"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Customer Type Toggle */}
@@ -261,7 +349,7 @@ const WaitlistForm = () => {
                                             : "text-gray-600 hover:text-gray-900"
                                     }`}
                                 >
-                                    organization
+                                    Organization
                                 </button>
                             </div>
                         </div>
@@ -278,7 +366,11 @@ const WaitlistForm = () => {
                                 id="email"
                                 name="email"
                                 type="email"
-                                placeholder="Enter your email address"
+                                placeholder={
+                                    customerType === "organization"
+                                        ? "you@yourcompany.com"
+                                        : "you@example.com"
+                                }
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 className={`h-12 ${
@@ -352,23 +444,6 @@ const WaitlistForm = () => {
                                 className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-3 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                             />
                         </div>
-
-                        {/* Error Message */}
-                        <AnimatePresence>
-                            {error && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md"
-                                >
-                                    <AlertCircle className="w-4 h-4 text-red-500" />
-                                    <p className="text-red-700 text-sm">
-                                        {error}
-                                    </p>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
 
                         {/* Submit Button */}
                         <Button
