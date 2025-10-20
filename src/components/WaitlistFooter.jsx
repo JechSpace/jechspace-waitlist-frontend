@@ -39,7 +39,7 @@ const WaitlistFooter = () => {
                         viewport={{ once: true }}
                     >
                         {/* Logo */}
-                        <div className="flex justify-center items-center gap-3 mb-6">
+                        <div className="flex justify-center items-center gap-3 mb-4">
                             <img
                                 src="/logo-blue.png"
                                 alt="JechSpace Logo"
@@ -48,7 +48,7 @@ const WaitlistFooter = () => {
                         </div>
 
                         {/* Tagline */}
-                        <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
+                        <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
                             Built for the future of work. JechSpace helps
                             organizations optimize their spaces and individuals
                             book with confidence—all through one intelligent

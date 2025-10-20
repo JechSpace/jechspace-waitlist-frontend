@@ -276,7 +276,7 @@ const WaitlistForm = () => {
                     </CardTitle>
                     <CardDescription className="text-gray-600 mt-2">
                         Get early access to JechSpace and be the first to
-                        experience the future of workspace management
+                        experience smarter workspace management.
                     </CardDescription>
                 </CardHeader>
                 {/* Server validation popup (dismissible) */}

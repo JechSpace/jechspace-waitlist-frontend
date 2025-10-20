@@ -12,7 +12,7 @@ const Navbar = () => {
 
             const distanceFromBottom =
                 documentHeight - (scrollTop + windowHeight);
-            setHideNavbar(distanceFromBottom < 500);
+            setHideNavbar(distanceFromBottom < 50);
         };
 
         window.addEventListener("scroll", handleScroll);
@@ -41,10 +41,10 @@ const Navbar = () => {
                     y: 0,
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="bg-white/60 backdrop-blur-lg border border-gray-100 shadow-lg rounded-[30px] max-w-6xl mt-[10px]"
+                className="bg-white/60 backdrop-blur-lg border border-gray-100 shadow-lg rounded-[30px] max-w-7xl mt-[10px]"
                 style={{ width: "95%" }}
             >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo */}
                         <motion.div
