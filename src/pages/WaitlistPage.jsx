@@ -88,88 +88,123 @@ const WaitlistPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="order-1 lg:order-2 relative hidden lg:block"
+              className="relative h-[480px] order-2 lg:order-2 hidden sm:block pointer-none:"
             >
-              {/* Decorative blur elements */}
-              {/* <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-200/20 rounded-full blur-3xl pointer-events-none" /> */}
+              {/* Clean background grid pattern */}
+              <div className="absolute inset-0 opacity-30">
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-100/50 to-blue-50/50 rounded-2xl"></div>
+                <div
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    backgroundImage: `
+                                            linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                                            linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)
+                                        `,
+                    backgroundSize: "20px 20px",
+                  }}
+                ></div>
+              </div>
 
-              {/* Dashboard Card */}
-              <div className="relative bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-w-[500px] mx-auto">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-slate-50 to-blue-50/30">
+              {/* Subtle accent elements */}
+              <div className="absolute top-8 right-8 w-2 h-2 bg-blue-500 rounded-full opacity-60"></div>
+              <div className="absolute bottom-8 left-8 w-1.5 h-1.5 bg-purple-500 rounded-full opacity-60"></div>
+              <div className="absolute top-1/3 left-4 w-1 h-8 bg-gradient-to-b from-blue-500/20 to-transparent rounded-full"></div>
+              <div className="absolute bottom-1/3 right-4 w-1 h-6 bg-gradient-to-t from-purple-500/20 to-transparent rounded-full"></div>
+
+              {/* Main dashboard container */}
+              <div className="relative bg-white/95 p-4 sm:p-5 lg:p-6 rounded-2xl shadow-xl border border-gray-200/50 hover:shadow-2xl transition-all duration-300 w-full max-w-lg mx-auto pointer-none">
+                {/* Dashboard Header */}
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                      <BarChart3 size={20} className="text-white" />
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <h3 className="font-semibold text-gray-900 text-sm">
                         JechSpace Dashboard
-                      </p>
+                      </h3>
                       <p className="text-xs text-gray-500">
                         Workspace Overview
                       </p>
                     </div>
                   </div>
-                  <div className="px-3 py-1 bg-green-100/80 text-green-700 text-xs font-semibold rounded-full">
+                  <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
                     Live
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-6 space-y-6">
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                      { label: "Total Users", value: "1,254" },
-                      { label: "Active Bookings", value: "45" },
-                      { label: "Total Spaces", value: "540" },
-                      { label: "Avg. Usage", value: "2.3 hrs" },
-                    ].map((stat, idx) => (
-                      <div key={idx} className="p-4 rounded-lg bg-gray-50">
-                        <p className="text-lg font-bold text-gray-900 mb-1">
-                          {stat.value}
-                        </p>
-                        <p className="text-xs text-gray-500">{stat.label}</p>
-                      </div>
-                    ))}
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="text-lg font-bold text-blue-600">1,254</div>
+                    <div className="text-xs text-blue-600">Total Users</div>
                   </div>
-
-                  {/* Activity */}
-                  <div className="pt-4 border-t border-gray-100">
-                    <p className="text-xs font-semibold text-gray-900 mb-4">
-                      Recent Activity
-                    </p>
-                    <div className="space-y-3">
-                      {[
-                        {
-                          user: "Sarah Johnson",
-                          action: "booked Conference Room A",
-                          time: "2 mins ago",
-                        },
-                        {
-                          user: "Alex Chen",
-                          action: "created new workspace",
-                          time: "15 mins ago",
-                        },
-                      ].map((activity, idx) => (
-                        <div key={idx} className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {activity.user}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {activity.action}
-                            </p>
-                          </div>
-                          <p className="text-xs text-gray-400 flex-shrink-0">
-                            {activity.time}
-                          </p>
-                        </div>
-                      ))}
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="text-lg font-bold text-green-600">45</div>
+                    <div className="text-xs text-green-600">
+                      Active Bookings
                     </div>
                   </div>
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <div className="text-lg font-bold text-purple-600">540</div>
+                    <div className="text-xs text-purple-600">Total Spaces</div>
+                  </div>
+                  <div className="bg-orange-50 p-3 rounded-lg">
+                    <div className="text-lg font-bold text-orange-600">
+                      2.3 hrs
+                    </div>
+                    <div className="text-xs text-orange-600">Avg. Usage</div>
+                  </div>
+                </div>
+
+                {/* Activity List */}
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-gray-900 mb-2">
+                    Recent Activities
+                  </div>
+                  {[1, 2].map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg"
+                    >
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-3 h-3 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium text-gray-900">
+                          New user registered
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          John Doe created account
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">2h ago</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
@@ -370,10 +405,7 @@ const WaitlistPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section
-        id="faq-section"
-        className="py-12 px-4 sm:px-6 lg:px-12 mb-5"
-      >
+      <section id="faq-section" className="py-12 px-4 sm:px-6 lg:px-12 mb-5">
         <div className="max-w-2xl mx-auto">
           <FAQSection />
         </div>

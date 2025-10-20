@@ -12,7 +12,6 @@ export const initGA = () => {
       },
     });
     isInitialized = true;
-    console.log("✅ GA4 Initialized");
   }
 };
 
@@ -27,7 +26,6 @@ export const trackPageView = (path) => {
 export const trackEvent = (eventName, eventParams = {}) => {
   if (isInitialized) {
     ReactGA.event(eventName, eventParams);
-    console.log("📊 Event tracked:", eventName, eventParams);
   }
 };
 
